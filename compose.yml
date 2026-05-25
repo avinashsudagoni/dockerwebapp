@@ -1,11 +1,15 @@
-version: "3.8"
+version: "3.9"
 
 services:
 
   devopsdb:
     image: avinash9394/automation:db
+
     ports:
       - "3306:3306"
+
+    deploy:
+      replicas: 1
 
     networks:
       - mynetwork
@@ -13,37 +17,20 @@ services:
     volumes:
       - dbdata:/var/lib/mysql
 
-    deploy:
-      replicas: 1
-
-      restart_policy:
-        condition: on-failure
-
-      placement:
-        constraints:
-          - node.role == worker
-
   application:
     image: avinash9394/automation:app
 
     ports:
       - "1111:8080"
 
-    networks:
-      - mynetwork
+    deploy:
+      replicas: 1
 
     depends_on:
       - devopsdb
 
-    deploy:
-      replicas: 3
-
-      restart_policy:
-        condition: on-failure
-
-      placement:
-        constraints:
-          - node.role == worker
+    networks:
+      - mynetwork
 
 networks:
   mynetwork:
