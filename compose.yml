@@ -1,14 +1,53 @@
----
-version: "3"
-services:
- devopsdb:
-   image: shaikmustafa/harikanew:dbimage
-   ports:
-     - "3306:3306"
+version: "3.8"
 
- application:
-   image: shaikmustafa/harikanew:appimage
-   ports:
-     - "1111:8080"
-   depends_on:
-     - "devopsdb"
+services:
+
+  devopsdb:
+    image: avinash9394/automation:db
+    ports:
+      - "3306:3306"
+
+    networks:
+      - mynetwork
+
+    volumes:
+      - dbdata:/var/lib/mysql
+
+    deploy:
+      replicas: 1
+
+      restart_policy:
+        condition: on-failure
+
+      placement:
+        constraints:
+          - node.role == worker
+
+  application:
+    image: avinash9394/automation:app
+
+    ports:
+      - "1111:8080"
+
+    networks:
+      - mynetwork
+
+    depends_on:
+      - devopsdb
+
+    deploy:
+      replicas: 3
+
+      restart_policy:
+        condition: on-failure
+
+      placement:
+        constraints:
+          - node.role == worker
+
+networks:
+  mynetwork:
+    driver: overlay
+
+volumes:
+  dbdata:
